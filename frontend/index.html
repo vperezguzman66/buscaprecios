@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BuscaPrecios — Homecenter · Easy · Construmart · MercadoLibre</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>🔍 BuscaPrecios</h1>
+      <p class="subtitle">Compara precios en Homecenter, Easy, Construmart y MercadoLibre</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="single">Búsqueda simple</button>
+      <button class="tab" data-tab="batch">Búsqueda en lote (CSV)</button>
+    </div>
+
+    <!-- Single search -->
+    <section id="tab-single" class="tab-content active">
+      <form id="search-form" class="search-box">
+        <input
+          type="text"
+          id="query"
+          placeholder="Ej: pintura látex blanco, taladro percutor, cemento..."
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="btn-search">Buscar</button>
+      </form>
+
+      <!-- Search history chips -->
+      <div id="search-history" class="search-history"></div>
+
+      <div class="store-filters" id="store-filters">
+        <span class="filter-label">Tiendas:</span>
+        <!-- Rendered dynamically by app.js from /api/stores -->
+      </div>
+
+      <div id="results-area"></div>
+    </section>
+
+    <!-- Batch search -->
+    <section id="tab-batch" class="tab-content">
+      <div class="batch-box">
+        <p>Sube un archivo CSV con un producto por línea:</p>
+        <pre class="example-csv">pintura látex blanco
+taladro 500W
+cemento gris 25kg
+pala punta redonda</pre>
+        <div class="upload-area" id="drop-zone">
+          <input type="file" id="csv-file" accept=".csv,.txt" hidden />
+          <p>Arrastra tu CSV aquí o <button type="button" id="btn-browse">selecciona archivo</button></p>
+          <p id="file-name" class="file-name"></p>
+        </div>
+
+        <div class="batch-options">
+          <div class="store-filters" id="batch-store-filters">
+            <span class="filter-label">Tiendas:</span>
+            <!-- Rendered dynamically by app.js from /api/stores -->
+          </div>
+          <div class="batch-option-row">
+            <span class="filter-label">Resultados por producto:</span>
+            <select id="batch-max-results">
+              <option value="3">3</option>
+              <option value="5" selected>5</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="btn-batch" disabled>Buscar precios</button>
+      </div>
+
+      <!-- Progress bar (shown during batch search) -->
+      <div id="batch-progress" class="batch-progress" style="display:none">
+        <div class="progress-header">
+          <span id="progress-text">Buscando…</span>
+          <span id="progress-query" class="progress-query"></span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <div id="batch-results-area"></div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
