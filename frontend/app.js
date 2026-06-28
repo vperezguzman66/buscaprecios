@@ -104,7 +104,7 @@ function storeLongName(storeId) {
 }
 
 function badgeClass(storeId) {
-  return { easy: "badge-easy", homecenter: "badge-homecenter", construmart: "badge-construmart", mercadolibre: "badge-mercadolibre" }[storeId] || "";
+  return { easy: "badge-easy", homecenter: "badge-homecenter", construmart: "badge-construmart", imperial: "badge-imperial", mercadolibre: "badge-mercadolibre" }[storeId] || "";
 }
 
 function escHtml(str) {

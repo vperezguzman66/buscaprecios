@@ -18,6 +18,7 @@ from scrapers import (
     ConstrumartScraper,
     EasyScraper,
     HomecenterScraper,
+    ImperialScraper,
     MercadoLibreNotConfiguredError,
     MercadoLibreScraper,
 )
@@ -65,6 +66,7 @@ SCRAPERS = {
     "easy": EasyScraper(),
     "homecenter": HomecenterScraper(),
     "construmart": ConstrumartScraper(),
+    "imperial": ImperialScraper(),
     "mercadolibre": _ml_scraper,
 }
 
@@ -143,6 +145,7 @@ async def list_stores():
         {"id": "easy", "name": "Easy", "url": "https://www.easy.cl", "configured": True},
         {"id": "homecenter", "name": "Homecenter", "url": "https://www.homecenter.cl", "configured": True},
         {"id": "construmart", "name": "Construmart", "url": "https://www.construmart.cl", "configured": True},
+        {"id": "imperial", "name": "Imperial", "url": "https://www.imperial.cl", "configured": True},
         {
             "id": "mercadolibre",
             "name": "MercadoLibre",

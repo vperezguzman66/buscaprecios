@@ -2,6 +2,7 @@ from .easy import EasyScraper
 from .homecenter import HomecenterScraper
 from .construmart import ConstrumartScraper
 from .mercadolibre import MercadoLibreScraper, MercadoLibreNotConfiguredError
+from .imperial import ImperialScraper
 
 __all__ = [
     "EasyScraper",
@@ -9,4 +10,5 @@ __all__ = [
     "ConstrumartScraper",
     "MercadoLibreScraper",
     "MercadoLibreNotConfiguredError",
+    "ImperialScraper",
 ]
