@@ -12,6 +12,9 @@ def _parse_cl_price(price_str: str) -> float | None:
     return float(clean) if clean else None
 
 
+_PRICE_PRIORITY = ["eventPrice", "internetPrice", "offerPrice", "cmrPrice", "normalPrice"]
+
+
 def _best_price(prices: list[dict]) -> tuple[float | None, str]:
     candidates: dict[str, float] = {}
     for p in prices:
@@ -24,10 +27,11 @@ def _best_price(prices: list[dict]) -> tuple[float | None, str]:
             if val:
                 candidates[price_type] = val
 
-    value = candidates.get("internetPrice") or candidates.get("cmrPrice")
-    if value is None:
-        return None, "Sin precio"
-    return value, f"${int(value):,}".replace(",", ".")
+    for price_type in _PRICE_PRIORITY:
+        value = candidates.get(price_type)
+        if value:
+            return value, f"${int(value):,}".replace(",", ".")
+    return None, "Sin precio"
 
 
 class HomecenterScraper(BaseScraper):
