@@ -135,6 +135,52 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   gap: 1rem;
 }
 
+/* ── Results table ── */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  font-size: .9rem;
+}
+.results-table thead { background: #f0f0f0; }
+.results-table th {
+  padding: .6rem 1rem;
+  text-align: left;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+.results-table td {
+  padding: .65rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.results-table tbody tr:last-child td { border-bottom: none; }
+.results-table tbody tr:hover { background: #fafafa; }
+.col-name a { color: var(--text); text-decoration: none; line-height: 1.35; }
+.col-name a:hover { color: var(--primary); text-decoration: underline; }
+.col-price { font-weight: 700; color: var(--primary); white-space: nowrap; }
+.col-dev { white-space: nowrap; }
+
+/* Deviation badges */
+.dev-above, .dev-below, .dev-avg {
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+}
+.dev-above { background: #fdecea; color: #c62828; }
+.dev-below { background: #e8f5e9; color: #2e7d32; }
+.dev-avg   { background: #f5f5f5; color: var(--muted); font-weight: 600; }
+.dev-na    { color: var(--muted); font-size: .85rem; }
+
 .product-card {
   background: var(--card-bg);
   border-radius: var(--radius);

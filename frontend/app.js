@@ -136,6 +136,47 @@ function productCard(p) {
     </div>`;
 }
 
+// ── Price deviation helpers ────────────────────────────────────────────────────
+
+function avgPrice(results) {
+  const priced = results.filter(p => p.price !== null);
+  if (!priced.length) return null;
+  return priced.reduce((s, p) => s + p.price, 0) / priced.length;
+}
+
+function deviationBadge(price, avg) {
+  if (price === null || avg === null) return '<span class="dev-na">—</span>';
+  const pct = ((price - avg) / avg) * 100;
+  if (Math.abs(pct) < 0.5) return '<span class="dev-avg">≈ promedio</span>';
+  const sign = pct > 0 ? "+" : "";
+  const cls = pct > 0 ? "dev-above" : "dev-below";
+  return `<span class="${cls}">${sign}${pct.toFixed(1)}%</span>`;
+}
+
+function resultsTable(results) {
+  const avg = avgPrice(results);
+  const rows = results.map(p => `
+    <tr>
+      <td><span class="badge ${badgeClass(p.store_id)}">${escHtml(storeDisplayName(p.store_id))}</span></td>
+      <td class="col-name"><a href="${safeUrl(p.url)}" target="_blank" rel="noopener noreferrer">${escHtml(p.name)}</a></td>
+      <td class="col-price">${escHtml(p.price_text)}</td>
+      <td class="col-dev">${deviationBadge(p.price, avg)}</td>
+    </tr>`).join("");
+
+  return `
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Tienda</th>
+          <th>Producto</th>
+          <th>Precio</th>
+          <th>Desviación del promedio</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
 // ── Results rendering ─────────────────────────────────────────────────────────
 
 function renderResults(container, data) {
@@ -160,7 +201,7 @@ function renderResults(container, data) {
   }
 
   html += results.length
-    ? `<div class="results-grid">${results.map(productCard).join("")}</div>`
+    ? resultsTable(results)
     : `<div class="empty-state">😕 Sin resultados<p>Prueba con otro término de búsqueda.</p></div>`;
 
   container.innerHTML = html;
@@ -204,8 +245,16 @@ function downloadCsv(filename, rows) {
 }
 
 function exportCSV(query, results) {
-  const rows = [["Producto", "Precio", "Tienda", "URL"]];
-  results.forEach(p => rows.push([p.name, p.price_text, storeLongName(p.store_id), p.url]));
+  const avg = avgPrice(results);
+  const rows = [["Producto", "Precio", "Desviación del promedio", "Tienda", "URL"]];
+  results.forEach(p => {
+    let dev = "—";
+    if (p.price !== null && avg !== null) {
+      const pct = ((p.price - avg) / avg) * 100;
+      dev = Math.abs(pct) < 0.5 ? "≈ promedio" : `${pct > 0 ? "+" : ""}${pct.toFixed(1)}%`;
+    }
+    rows.push([p.name, p.price_text, dev, storeLongName(p.store_id), p.url]);
+  });
   downloadCsv(`buscaprecios-${query.replace(/\s+/g, "_")}.csv`, rows);
 }
 
