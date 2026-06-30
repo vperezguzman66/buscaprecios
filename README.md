@@ -1,6 +1,6 @@
 # BuscaPrecios
 
-Aplicación web para comparar precios de productos en las principales tiendas de mejoramiento del hogar de Chile: **Easy**, **Homecenter (Sodimac)**, **Construmart** y **MercadoLibre**.
+Aplicación web para comparar precios de productos en las principales tiendas de mejoramiento del hogar de Chile: **Easy**, **Homecenter (Sodimac)**, **Construmart**, **Imperial** y **MercadoLibre**.
 
 ## Características
 
@@ -61,6 +61,7 @@ buscaprecios/
 │       ├── easy.py           # Scraper Easy.cl
 │       ├── homecenter.py     # Scraper Homecenter / Sodimac
 │       ├── construmart.py    # Scraper Construmart
+│       ├── imperial.py       # Scraper Imperial.cl
 │       └── mercadolibre.py  # Scraper MercadoLibre (requiere credenciales)
 ├── frontend/
 │   ├── index.html
@@ -184,6 +185,14 @@ Construmart usa Magento 2. Su API GraphQL pública devuelve nombres e imágenes 
 
 - **GraphQL:** `https://www.construmart.cl/graphql`
 - **Precio:** `offers.price` en el JSON-LD de cada página de producto
+
+### Imperial.cl
+
+Imperial usa Oracle Commerce Cloud (OCC). La búsqueda pasa por el endpoint `assembler/pages/.../guidedsearch` que devuelve registros con atributos de producto (nombre, SKU, precio, imagen) en formato JSON. Cuando la búsqueda redirige a una categoría, se usa un endpoint alternativo (`get-category-products`) para obtener los IDs y luego se consulta `/ccstore/v1/products` para las rutas y nombres.
+
+- **Búsqueda:** `GET /ccstore/v1/assembler/pages/Default/services/guidedsearch?Ntt={query}`
+- **Precio:** campo `sku.activePrice` en los atributos del registro
+- **Categorías:** endpoint `/ccstorex/custom/occ/get-category-products` + `/ccstore/v1/products`
 
 ### MercadoLibre
 
