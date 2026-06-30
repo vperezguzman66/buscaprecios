@@ -104,14 +104,14 @@ def _cache_set(key: tuple, data: dict) -> None:
 # ── Core search logic (shared by both endpoints, no rate-limit dependency) ────
 
 async def _do_search(query: str, stores: str, max_results: int) -> dict:
-    cache_key = (query.lower().strip(), stores, max_results)
+    selected = sorted({s.strip() for s in stores.split(",") if s.strip() in SCRAPERS})
+    if not selected:
+        return {"query": query, "count": 0, "results": [], "errors": []}
+
+    cache_key = (query.lower().strip(), tuple(selected), max_results)
     cached = _cache_get(cache_key)
     if cached is not None:
         return cached
-
-    selected = [s.strip() for s in stores.split(",") if s.strip() in SCRAPERS]
-    if not selected:
-        return {"query": query, "count": 0, "results": [], "errors": []}
 
     results_per_store = await asyncio.gather(
         *[SCRAPERS[s].search(query, max_results) for s in selected],
