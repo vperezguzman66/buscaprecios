@@ -17,10 +17,14 @@ class MercadoLibreScraper(BaseScraper):
         self._client_secret = os.getenv("ML_CLIENT_SECRET", "")
         self._token: str | None = None
         self._token_expires: float = 0
+        self._token_lock = asyncio.Lock()
 
     @property
     def is_configured(self) -> bool:
         return bool(self._client_id and self._client_secret)
+
+    def _token_valid(self) -> bool:
+        return bool(self._token and time.time() < self._token_expires - 60)
 
     async def _get_token(self) -> str:
         if not self.is_configured:
@@ -28,25 +32,29 @@ class MercadoLibreScraper(BaseScraper):
                 "Faltan credenciales ML_CLIENT_ID / ML_CLIENT_SECRET. "
                 "Regístralas en https://developers.mercadolibre.com"
             )
-        # Reuse cached token if still valid (with 60s buffer)
-        if self._token and time.time() < self._token_expires - 60:
+        if self._token_valid():
             return self._token
 
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.post(
-                _TOKEN_URL,
-                data={
-                    "grant_type": "client_credentials",
-                    "client_id": self._client_id,
-                    "client_secret": self._client_secret,
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
+        async with self._token_lock:
+            # Another coroutine may have refreshed while we waited for the lock
+            if self._token_valid():
+                return self._token
 
-        self._token = data["access_token"]
-        self._token_expires = time.time() + data.get("expires_in", 21600)
-        return self._token
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.post(
+                    _TOKEN_URL,
+                    data={
+                        "grant_type": "client_credentials",
+                        "client_id": self._client_id,
+                        "client_secret": self._client_secret,
+                    },
+                )
+                resp.raise_for_status()
+                data = resp.json()
+
+            self._token = data["access_token"]
+            self._token_expires = time.time() + data.get("expires_in", 21600)
+            return self._token
 
     async def search(self, query: str, max_results: int = 10) -> list[Product]:
         token = await self._get_token()
