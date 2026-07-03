@@ -24,6 +24,18 @@ def _extract_category_id(url: str) -> str | None:
     return m.group(1) if m else None
 
 
+def _extract_product_price(item: dict) -> tuple[float | None, str]:
+    """Falls back to the /products endpoint's own price fields (used when the
+    category-search flow didn't provide a price via sku.activePrice)."""
+    value = item.get("salePrice") or item.get("listPrice")
+    if not value:
+        for sku in item.get("childSKUs") or []:
+            value = sku.get("salePrice") or sku.get("listPrice")
+            if value:
+                break
+    return _parse_price(value)
+
+
 class ImperialScraper(BaseScraper):
     async def search(self, query: str, max_results: int = 10) -> list[Product]:
         headers = {**self.HEADERS, "Accept": "application/json"}
@@ -72,7 +84,11 @@ class ImperialScraper(BaseScraper):
         except Exception:
             return []
 
-        product_ids = [str(item) for item in (ids_data if isinstance(ids_data, list) else [])]
+        product_ids = [
+            str(item["id"])
+            for item in (ids_data if isinstance(ids_data, list) else [])
+            if isinstance(item, dict) and "id" in item
+        ]
         if not product_ids:
             return []
 
@@ -118,7 +134,10 @@ class ImperialScraper(BaseScraper):
                     params={
                         "productIds": ",".join(product_ids),
                         "storePriceListGroupId": "_default_price_book",
-                        "fields": "id,route,displayName,primaryFullImageURL",
+                        "fields": (
+                            "id,route,displayName,primaryFullImageURL,"
+                            "listPrice,salePrice,childSKUs.listPrice,childSKUs.salePrice"
+                        ),
                     },
                     headers=headers,
                 )
@@ -131,7 +150,10 @@ class ImperialScraper(BaseScraper):
         for item in items:
             pid = item.get("id")
             route = item.get("route", "")
-            price, price_text = prices.get(pid, (None, "Sin precio"))
+            if pid in prices:
+                price, price_text = prices[pid]  # record already resolved its own price (even if "Sin precio")
+            else:
+                price, price_text = _extract_product_price(item)
             name = names.get(pid) or item.get("displayName", pid)
             img = images.get(pid)
             if img is None:
