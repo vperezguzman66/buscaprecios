@@ -188,11 +188,12 @@ Construmart usa Magento 2. Su API GraphQL pública devuelve nombres e imágenes 
 
 ### Imperial.cl
 
-Imperial usa Oracle Commerce Cloud (OCC). La búsqueda pasa por el endpoint `assembler/pages/.../guidedsearch` que devuelve registros con atributos de producto (nombre, SKU, precio, imagen) en formato JSON. Cuando la búsqueda redirige a una categoría, se usa un endpoint alternativo (`get-category-products`) para obtener los IDs y luego se consulta `/ccstore/v1/products` para las rutas y nombres.
+Imperial usa Oracle Commerce Cloud (OCC). La búsqueda pasa por el endpoint `assembler/pages/.../guidedsearch` que devuelve registros con atributos de producto (nombre, SKU, precio, imagen) en formato JSON. Cuando la búsqueda redirige a una categoría (caso común para términos genéricos), se usa un endpoint alternativo (`get-category-products`) para obtener los IDs y luego se consulta `/ccstore/v1/products` para las rutas, nombres y precio.
 
 - **Búsqueda:** `GET /ccstore/v1/assembler/pages/Default/services/guidedsearch?Ntt={query}`
-- **Precio:** campo `sku.activePrice` en los atributos del registro
-- **Categorías:** endpoint `/ccstorex/custom/occ/get-category-products` + `/ccstore/v1/products`
+- **Precio (resultados directos):** campo `sku.activePrice` en los atributos del registro
+- **Precio (flujo de categoría):** `sku.activePrice` no está disponible en este flujo; se usa como fallback `listPrice`/`salePrice` (o `childSKUs[].listPrice`/`salePrice`) desde `/ccstore/v1/products`
+- **Categorías:** endpoint `/ccstorex/custom/occ/get-category-products` (devuelve una lista de objetos `{"id": "..."}`) + `/ccstore/v1/products`
 
 ### MercadoLibre
 
